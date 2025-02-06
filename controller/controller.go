@@ -16,6 +16,7 @@ type Controller struct {
 func NewController(s service.Service) *Controller {
 	return &Controller{
 		service: s,
+	
 	}
 }
 

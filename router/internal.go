@@ -17,24 +17,28 @@ func InternalRoutes(ctx context.Context, s *http.Server) (err error) {
 	// todo use go wire if needed
 	newRepository := repo.NewRepository(pkg.GetCluster().DbCluster)
 	newService := service.NewService(newRepository)
-	controller := controller.NewController(newService)
+	maincontroller := controller.NewController(newService)
+	
+	inventoryRepository := repo.NewInventoryRepository(pkg.GetCluster().DbCluster)
+	inventoryService := service.NewInventoryService(inventoryRepository)
+	inventoryController := controller.NewInventoryController(inventoryService)
+
 
 	// make apis for it
 	rtr.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"msg": "mst"})
 	}) 
-    rtr.POST("/hub",controller.CreateHub())
-	rtr.GET("/hub", controller.GetHubs())
-	rtr.GET("/hub/:id", controller.GetHubByID())
-	rtr.GET("/hub/tenant/:id", controller.GetHubByTenantId())
-	rtr.DELETE("/hub/:id",controller.DeleteHub())
-	rtr.POST("/sku",controller.CreateSku())
-	rtr.GET("/sku", controller.GetSkus())
-	rtr.GET("/sku/:id", controller.GetSkuByID())
-	rtr.DELETE("/sku/:id",controller.DeleteSku())
-
-	// Define GET route to fetch SKUs by Seller ID
-	rtr.GET("/sku/seller/:id", controller.GetSkuBySellerID())
-
+    rtr.POST("/hub",maincontroller.CreateHub())
+	rtr.GET("/hub", maincontroller.GetHubs())
+	rtr.GET("/hub/:id", maincontroller.GetHubByID())
+	rtr.GET("/hub/tenant/:id", maincontroller.GetHubByTenantId())
+	rtr.DELETE("/hub/:id",maincontroller.DeleteHub())
+	rtr.POST("/sku",maincontroller.CreateSku())
+	rtr.GET("/sku", maincontroller.GetSkus())
+	rtr.GET("/sku/:id", maincontroller.GetSkuByID())
+	rtr.DELETE("/sku/:id",maincontroller.DeleteSku())
+	rtr.GET("/sku/seller/:id", maincontroller.GetSkuBySellerID())
+	rtr.GET("/inventory", inventoryController.FetchInventory()) 
+    rtr.PUT("/inventory/", inventoryController.UpdateInventory())
 	return
 }
