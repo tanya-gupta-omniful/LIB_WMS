@@ -10,6 +10,7 @@ import (
 type InventoryService interface {
 	FetchInventory(ctx context.Context, hubID, skuID int) ([]domain.Inventory, error)
 	UpdateInventory(ctx context.Context, inventory domain.Inventory) error
+	ValidateInventory(ctx context.Context, skuID, hubID, quantity int) (bool, error)
 }
 
 type inventoryService struct {
@@ -32,4 +33,7 @@ func (s *inventoryService) UpdateInventory(ctx context.Context, inventory domain
 		return errors.New("invalid inventory data")
 	}
 	return s.repo.UpdateInventory(ctx, inventory)
+}
+func (s *inventoryService) ValidateInventory(ctx context.Context, skuID, hubID, quantity int) (bool, error) {
+	return s.repo.ValidateInventory(ctx, skuID, hubID, quantity)
 }

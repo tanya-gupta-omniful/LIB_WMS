@@ -11,6 +11,7 @@ import (
 type InventoryRepository interface {
 	FetchInventory(ctx context.Context, hubID, skuID int) ([]domain.Inventory, error)
 	UpdateInventory(ctx context.Context, inventory domain.Inventory) error
+	ValidateInventory(ctx context.Context, skuID, hubID, quantity int) (bool, error)
 }
 
 type inventoryRepository struct {
@@ -54,4 +55,16 @@ func (r *inventoryRepository) UpdateInventory(ctx context.Context, inventory dom
 	}
 
 	return nil
+}
+func (r *inventoryRepository) ValidateInventory(ctx context.Context, skuID, hubID, quantity int) (bool, error) {
+	var totalQuantity int
+	result := r.db.GetMasterDB(ctx).Table("inventories").
+		Where("sku_id = ? AND hub_id = ?", skuID, hubID).
+		Select("SUM(quantity)").Row().Scan(&totalQuantity)
+
+	if result != nil {
+		return false, errors.New("error fetching inventory data")
+	}
+
+	return totalQuantity >= quantity, nil
 }
