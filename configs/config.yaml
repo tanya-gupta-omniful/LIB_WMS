@@ -1,0 +1,14 @@
+server:
+  port: ":8120"
+
+postgresql:
+  debugMode: true
+  database: "wms_db"
+  maxOpenConns: 10
+  maxIdleConns: 2
+  master:
+    host: "localhost"
+    port: "5432"
+    username: "postgres"
+    password: "2003"
+  slaves: []
