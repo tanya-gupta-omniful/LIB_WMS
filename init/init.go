@@ -41,6 +41,7 @@ func initializeDB(ctx context.Context) {
 	}
 	slavesConfig := make([]opostgres.DBConfig, 0)
 	db := opostgres.InitializeDBInstance(masterConfig, &slavesConfig)
-	log.InfofWithContext(ctx, "Initialized Postgres DB client")
+	//log.InfofWithContext(ctx, "Initialized Postgres DB client")
+	log.Infof("Intialized postgres db")
 	postgres.SetCluster(db)
 }

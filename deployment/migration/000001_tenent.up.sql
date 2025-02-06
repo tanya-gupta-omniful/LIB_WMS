@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS tenants (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_by BIGINT,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
+);

@@ -3,17 +3,21 @@ package main
 import (
 	appinit "WMS/init"
 	"context"
+	"flag"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/omniful/go_commons/config"
+	"github.com/omniful/go_commons/db/sql/migration"
 	"github.com/omniful/go_commons/http"
 	"github.com/omniful/go_commons/log"
 	"github.com/omniful/go_commons/shutdown"
 )
 
 const (
-	modeWorker     = "worker"
+	//modeWorker     = "worker"
 	modeHttp       = "http"
 	modeMigration  = "migration"
 	upMigration    = "up"
@@ -37,7 +41,44 @@ func main(){
     appinit.Initialize(ctx)
 
 	//run server
-	runHttpServer(ctx)
+	//runHttpServer(ctx)
+	var mode, migrationType, number string
+	flag.StringVar(
+		&mode,
+		"mode",
+		modeHttp,
+		"Pass the flag to run in different modes (worker or default)",
+	)
+
+	flag.StringVar(
+		&migrationType,
+		"migrationType",
+		upMigration,
+		"Pass the flag to run migration in different modes (worker or default)",
+	)
+
+	flag.StringVar(
+		&number,
+		"migrationNumber",
+		"0",
+		"Pass the flag to force migration to that version(number)",
+	)
+	flag.Parse()
+
+	//if config.GetBool(ctx, "migration.flag") {
+	//	runMigration(ctx, migrationType, number)
+	//}
+
+	switch strings.ToLower(mode) {
+	case modeHttp:
+		runHttpServer(ctx)
+	//case modeWorker:
+	//	runWorker(ctx)
+	case modeMigration:
+		runMigration(ctx, migrationType, number)
+	default:
+		runHttpServer(ctx)
+	}
 
 }
 func runHttpServer(ctx context.Context) {
@@ -66,4 +107,49 @@ func runHttpServer(ctx context.Context) {
 	}
 
 	<-shutdown.GetWaitChannel()
+}
+
+func runMigration(ctx context.Context, migrationType string, number string) {
+	database := config.GetString(ctx, "postgresql.database")
+	mysqlWriteHost := config.GetString(ctx, "postgresql.master.host")
+	mysqlWritePort := config.GetString(ctx, "postgresql.master.port")
+	mysqlWritePassword := config.GetString(ctx, "postgresql.master.password")
+	mysqlWriterUsername := config.GetString(ctx, "postgresql.master.username")
+
+	m, err := migration.InitializeMigrate("file://deployment/migration", "postgres://"+mysqlWriteHost+":"+mysqlWritePort+"/"+database+"?user="+mysqlWriterUsername+"&password="+mysqlWritePassword+"&sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	switch migrationType {
+	case upMigration:
+		err = m.Up()
+		if err != nil {
+			panic(err)
+		}
+		break
+	case downMigration:
+		err = m.Down()
+		if err != nil {
+			panic(err)
+		}
+		break
+	case forceMigration:
+		version, parseErr := strconv.Atoi(number)
+		if parseErr != nil {
+			panic(parseErr)
+		}
+
+		err = m.ForceVersion(version)
+		if err != nil {
+			return
+		}
+		break
+	default:
+		err = m.Up()
+		if err != nil {
+			panic(err)
+		}
+		break
+	}
 }
