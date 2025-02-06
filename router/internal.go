@@ -1,7 +1,7 @@
 package router
 
 import (
-	controller "WMS/controllers"
+	"WMS/controller"
 	pkg "WMS/db"
 	"WMS/repo"
 	"WMS/service"
@@ -23,13 +23,18 @@ func InternalRoutes(ctx context.Context, s *http.Server) (err error) {
 	rtr.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"msg": "mst"})
 	}) 
-
+    rtr.POST("/hub",controller.CreateHub())
 	rtr.GET("/hub", controller.GetHubs())
 	rtr.GET("/hub/:id", controller.GetHubByID())
-	rtr.GET("/:sku_id", controller.GetSkuByID())
+	rtr.GET("/hub/tenant/:id", controller.GetHubByTenantId())
+	rtr.DELETE("/hub/:id",controller.DeleteHub())
+	rtr.POST("/sku",controller.CreateSku())
+	rtr.GET("/sku", controller.GetSkus())
+	rtr.GET("/sku/:id", controller.GetSkuByID())
+	rtr.DELETE("/sku/:id",controller.DeleteSku())
 
 	// Define GET route to fetch SKUs by Seller ID
-	rtr.GET("/seller/:seller_id", controller.GetSkuBySellerID())
+	rtr.GET("/sku/seller/:id", controller.GetSkuBySellerID())
 
 	return
 }

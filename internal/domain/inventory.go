@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // Hub - Struct representing a hub
 type Hub struct {
@@ -8,9 +11,10 @@ type Hub struct {
 	Name      string  `json:"name"`
 	TenantID  int64   `json:"tenant_id"`  // Corresponds to BIGINT (int64 in Go)
 	Location  string  `json:"location"`   // Could be a string or use a custom type for the POINT type
-	CreatedAt string  `json:"created_at"` // Corresponds to TIMESTAMPTZ (string or time.Time in Go)
-	CreatedBy int64   `json:"created_by"` // Corresponds to BIGINT (int64 in Go)
-	UpdatedAt string  `json:"updated_at"` // Corresponds to TIMESTAMPTZ (string or time.Time in Go)
+CreatedAt *time.Time `json:"created_at,omitempty"`
+	
+	CreatedBy *time.Time  `json:"created_by"` // Corresponds to BIGINT (int64 in Go)
+	UpdatedAt *time.Time   `json:"updated_at"` // Corresponds to TIMESTAMPTZ (string or time.Time in Go)
 	UpdatedBy int64   `json:"updated_by"` // Corresponds to BIGINT (int64 in Go)
 	DeletedAt *string `json:"deleted_at"` // Nullable, so it's a pointer to string or time.Time
 }
@@ -22,4 +26,13 @@ type Sku struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	DeletedAt   *time.Time `json:"deleted_at"`
+}
+
+type Inventory struct {
+	ID        int64        `json:"id" db:"id"`
+	HubID     int64        `json:"hub_id" db:"hub_id"`
+	SKUID     int64        `json:"sku_id" db:"sku_id"`
+	Quantity  int          `json:"quantity" db:"quantity"`
+	CreatedAt sql.NullTime `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at,omitempty" db:"updated_at"`
 }

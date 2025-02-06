@@ -11,9 +11,15 @@ import (
 
 type Repository interface {
 	GetAllHubs(ctx context.Context) []domain.Hub
+	GetAllSkus(ctx context.Context) []domain.Sku
 	GetHubByID(ctx context.Context, id int) (domain.Hub, error) 
 	GetSkuByID(ctx context.Context, skuID int) (domain.Sku, error)
+	GetHubByTenantId(ctx context.Context, tenantId int)([]domain.Hub, error)
 	GetSkuBySellerID(ctx context.Context, sellerID int) ([]domain.Sku, error)
+	CreateHub(ctx context.Context, hub domain.Hub) (domain.Hub, error)
+	CreateSku(ctx context.Context, sku domain.Sku) (domain.Sku, error)
+	DeleteHub(ctx context.Context, id int) error
+	DeleteSku(ctx context.Context, skuID int) error
 }
 
 type repository struct {
@@ -40,6 +46,11 @@ func (r *repository) GetAllHubs(ctx context.Context) []domain.Hub {
 	//err := r.db.Find(&hubs).Error
 	r.db.GetMasterDB(ctx).Find(&hubs)
 	return hubs
+}
+func (r *repository)GetAllSkus(ctx context.Context)[]domain.Sku{
+	var skus []domain.Sku
+	r.db.GetMasterDB(ctx).Find(&skus)
+	return skus
 }
 func (r *repository) GetHubByID(ctx context.Context, id int) (domain.Hub, error) {
 	var hub domain.Hub
@@ -77,7 +88,17 @@ func (r *repository) GetSkuByID(ctx context.Context, skuID int) (domain.Sku, err
 	// Return the found SKU
 	return sku, nil
 }
-
+func (r *repository) GetHubByTenantId(ctx context.Context,tenantId int) ([]domain.Hub, error){
+	var hubs []domain.Hub
+	if tenantId<=0 {
+		return hubs, errors.New("invalid tenant ID")
+	}
+	result := r.db.GetMasterDB(ctx).Where("tenant_id = ?", tenantId).Find(&hubs)
+	if result.Error != nil{
+		return hubs, result.Error
+	}	
+	return hubs, nil
+} 
 // GetSkuBySellerID queries the database to fetch SKUs by seller_id
 func (r *repository) GetSkuBySellerID(ctx context.Context, sellerID int) ([]domain.Sku, error) {
 	var skus []domain.Sku
@@ -96,4 +117,28 @@ func (r *repository) GetSkuBySellerID(ctx context.Context, sellerID int) ([]doma
 
 	// Return the found SKUs
 	return skus, nil
+}
+
+// Create a new hub
+func (r *repository) CreateHub(ctx context.Context, hub domain.Hub) (domain.Hub, error) {
+	result := r.db.GetMasterDB(ctx).Create(&hub)
+	return hub, result.Error
+}
+
+// Create a new SKU
+func (r *repository) CreateSku(ctx context.Context, sku domain.Sku) (domain.Sku, error) {
+	result := r.db.GetMasterDB(ctx).Create(&sku)
+	return sku, result.Error
+}
+
+// Delete a hub by ID
+func (r *repository) DeleteHub(ctx context.Context, id int) error {
+	result := r.db.GetMasterDB(ctx).Delete(&domain.Hub{}, id)
+	return result.Error
+}
+
+// Delete an SKU by ID
+func (r *repository) DeleteSku(ctx context.Context, skuID int) error {
+	result := r.db.GetMasterDB(ctx).Delete(&domain.Sku{}, skuID)
+	return result.Error
 }
