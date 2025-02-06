@@ -1,0 +1,12 @@
+-- Insert into tenants
+-- INSERT INTO tenants (name, email, created_by, updated_by) VALUES
+--     ('Tenant A', 'tenantA@example.com', 1, 1),
+--     ('Tenant B', 'tenantB@example.com', 2, 2),
+--     ('Tenant C', 'tenantC@example.com', 3, 3),
+--     ('Tenant D', 'tenantD@example.com', 4, 4),
+--     ('Tenant E', 'tenantE@example.com', 5, 5),
+--     ('Tenant F', 'tenantF@example.com', 6, 6),
+--     ('Tenant G', 'tenantG@example.com', 7, 7),
+--     ('Tenant H', 'tenantH@example.com', 8, 8),
+--     ('Tenant I', 'tenantI@example.com', 9, 9),
+--     ('Tenant J', 'tenantJ@example.com', 10, 10);
