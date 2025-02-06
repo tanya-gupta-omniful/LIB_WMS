@@ -25,6 +25,8 @@ func InternalRoutes(ctx context.Context, s *http.Server) (err error) {
 	})
 
 	rtr.GET("/hub", controller.GetHubs())
+	rtr.GET("/hub/:id", controller.GetHubByID())
+	rtr.GET("/hub/tenant/:id",controller.GetHubByTenantID())
 
 	return
 }
