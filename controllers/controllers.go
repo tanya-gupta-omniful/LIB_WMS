@@ -50,21 +50,49 @@ func (c *Controller) GetHubByID() gin.HandlerFunc {
 	}
 }
 
-func (c *Controller) GetHubByTenantID() gin.HandlerFunc {
+func (c *Controller) GetSkuByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		TenantID, err := strconv.Atoi(ctx.Param("tenant_id"))
+		// Get sku_id from the URL parameters
+		SkuID, err := strconv.Atoi(ctx.Param("sku_id"))
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Tenant ID"})
+			// Handle invalid SKU ID format
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid SKU ID"})
 			return
 		}
 
-		hub, err := c.service.FetchHubByTenantID(ctx, TenantID)
+		// Fetch the SKU based on the SKU ID
+		sku, err := c.service.FetchSkuByID(ctx, SkuID)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "Hub not found for this tenant"})
+			// Handle error if no SKU is found
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "SKU not found"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, hub)
-		
+		// Return the SKU details if found
+		ctx.JSON(http.StatusOK, sku)
+	}
+}
+
+// GetSkuBySellerID handles the API request to fetch SKU by seller_id
+func (c *Controller) GetSkuBySellerID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Get seller_id from the URL parameters
+		SellerID, err := strconv.Atoi(ctx.Param("seller_id"))
+		if err != nil {
+			// Handle invalid Seller ID format
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Seller ID"})
+			return
+		}
+
+		// Fetch the SKU based on the Seller ID
+		sku, err := c.service.FetchSkuBySellerID(ctx, SellerID)
+		if err != nil {
+			// Handle error if no SKU is found for the given seller_id
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "SKU not found for the seller"})
+			return
+		}
+
+		// Return the SKU details if found
+		ctx.JSON(http.StatusOK, sku)
 	}
 }

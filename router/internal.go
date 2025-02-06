@@ -22,11 +22,14 @@ func InternalRoutes(ctx context.Context, s *http.Server) (err error) {
 	// make apis for it
 	rtr.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"msg": "mst"})
-	})
+	}) 
 
 	rtr.GET("/hub", controller.GetHubs())
 	rtr.GET("/hub/:id", controller.GetHubByID())
-	rtr.GET("/hub/tenant/:id",controller.GetHubByTenantID())
+	rtr.GET("/:sku_id", controller.GetSkuByID())
+
+	// Define GET route to fetch SKUs by Seller ID
+	rtr.GET("/seller/:seller_id", controller.GetSkuBySellerID())
 
 	return
 }
