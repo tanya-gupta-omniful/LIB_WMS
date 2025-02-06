@@ -22,6 +22,8 @@ func InternalRoutes(ctx context.Context, server *http.Server) (err error) {
 		// Inventory Routes
 		api.GET("/inventory", controllers.GetInventory)  // View inventory
 		api.PUT("/inventory", controllers.EditInventory) // Edit inventory
+		//validate inventory based on sku + hub 
+		//update inventory 
 	}
 	return nil
 }
