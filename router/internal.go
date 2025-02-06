@@ -1,29 +1,30 @@
 package router
 
 import (
+	controller "WMS/controllers"
+	pkg "WMS/db"
+	"WMS/repo"
+	"WMS/service"
 	"context"
-     "WMS/controllers"
+
+	"github.com/gin-gonic/gin"
 	"github.com/omniful/go_commons/http"
 )
-func InternalRoutes(ctx context.Context, server *http.Server) (err error) {
-	router := server.Engine // Using Gin Engine from server
 
-	// API Versioning (optional)
-	api := router.Group("/api/v1")
-	{
-		// Warehouse Hub Routes
-		api.GET("/hubs/:id", controllers.GetHub) // View a single hub
-		api.POST("/hubs", controllers.CreateHub) // Create a new hub
+func InternalRoutes(ctx context.Context, s *http.Server) (err error) {
+	rtr := s.Engine.Group("/api/v1")
 
-		// SKU Routes
-		api.GET("/skus", controllers.GetSKUs) // Get multiple SKUs
-		api.POST("/skus", controllers.CreateSKU)
+	// todo use go wire if needed
+	newRepository := repo.NewRepository(pkg.GetCluster().DbCluster)
+	newService := service.NewService(newRepository)
+	controller := controller.NewController(newService)
 
-		// Inventory Routes
-		api.GET("/inventory", controllers.GetInventory)  // View inventory
-		api.PUT("/inventory", controllers.EditInventory) // Edit inventory
-		//validate inventory based on sku + hub 
-		//update inventory 
-	}
-	return nil
+	// make apis for it
+	rtr.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"msg": "mst"})
+	})
+
+	rtr.GET("/hub", controller.GetHubs())
+
+	return
 }

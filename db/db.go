@@ -29,3 +29,4 @@ func IsViolatesUniqueConstraint(err error) bool {
 
 	return pqError.Code == "23505"
 }
+

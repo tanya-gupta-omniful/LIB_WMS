@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"WMS/router"
+
 	"github.com/omniful/go_commons/config"
 	"github.com/omniful/go_commons/db/sql/migration"
 	"github.com/omniful/go_commons/http"
@@ -86,11 +88,11 @@ func runHttpServer(ctx context.Context) {
 	server := http.InitializeServer(config.GetString(ctx, "server.port"), 10*time.Second, 10*time.Second, 70*time.Second)
 
 	// Initialize middlewares and routes
-//err := router.Initialize(ctx, server)
-//if err != nil {
-//	log.Errorf(err.Error())
-//	panic(err)
-//}
+    err := router.InternalRoutes(ctx, server)
+    if err != nil {
+    	log.Errorf(err.Error())
+    	panic(err)
+    }
 //
 //err = router.InternalRoutes(ctx, server)
 //if err != nil {
@@ -100,7 +102,7 @@ func runHttpServer(ctx context.Context) {
 
 	log.Infof("Starting server on port" + config.GetString(ctx, "server.port"))
 
-	err := server.StartServer("WM-service")
+	err = server.StartServer("WM-service")
 	if err != nil {
 		log.Errorf(err.Error())
 		panic(err)
